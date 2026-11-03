@@ -96,6 +96,14 @@ async def check(pw, width, height, mobile):
     # a few interactions
     await goto(page, 'transactions'); await page.wait_for_selector('tr[data-gid]')
     await page.locator('tr[data-gid]').first.click(); await page.wait_for_selector('#drawer.open #txForm')   # (a closed drawer keeps its last form)
+    # The open drawer is modal: Tab and Shift+Tab go round inside it, never out to the page behind
+    if not mobile:
+        await page.wait_for_timeout(400)
+        for key in ('Tab', 'Shift+Tab'):
+            for _ in range(45):
+                await page.keyboard.press(key)
+                if not await page.evaluate("() => el('drawer').contains(document.activeElement)"):
+                    errors.append(f'{key} left the open drawer'); break
     await page.keyboard.press('Escape'); await page.wait_for_timeout(500)
     await page.evaluate('App.quickAdd()'); await page.wait_for_selector('#nlq')
     await page.locator('#nlq').press_sequentially('coffee 4.50 yesterday'); await page.wait_for_timeout(300)
@@ -266,11 +274,16 @@ async def check(pw, width, height, mobile):
         if await page.locator('#view .review-row').count() != n - 1: errors.append('ticking off a transaction did not take it out of the review queue')
         # Forecast what-if: adding one puts it in the list of what's coming
         await goto(page, 'forecast'); await page.wait_for_selector('form.whatif')
-        await page.fill('form.whatif input[name=label]', 'Smoke test laptop'); await page.fill('form.whatif input[name=amount]', '900')
-        await page.locator('form.whatif button').click()
-        # The forecast redraws after the click; wait for the row instead of a fixed pause (slow CI runners missed it)
-        try: await page.locator('#view .tbl .desc', has_text='Smoke test laptop').first.wait_for(timeout=10000)
-        except Exception: errors.append('a forecast what-if did not show up')
+        # The page can be drawn again under the form after it opens (a read that failed on the flaky server and was retried, or a
+        # refresh of saved numbers), which empties what was typed, and the form then ignores the click. So fill and press as one
+        # step, and if the row doesn't come, look again at the form and do it over.
+        shown = False
+        for attempt in range(4):
+            await page.wait_for_selector('form.whatif')
+            await page.evaluate('''() => { const f = document.querySelector('form.whatif'); f.label.value = 'Smoke test laptop'; f.amount.value = '900'; f.querySelector('button').click(); }''')
+            try: await page.locator('#view .tbl .desc', has_text='Smoke test laptop').first.wait_for(timeout=5000); shown = True; break
+            except Exception: await page.wait_for_function(PAINTED, timeout=15000)
+        if not shown: errors.append('a forecast what-if did not show up')
         await goto(page, ''); await page.wait_for_selector('#dash [data-w="payees"] .part', timeout=15000)
         await page.evaluate('App.dashEdit(true)'); await page.wait_for_selector('#dashCols')
         # A tile's own settings: fewer recent transactions

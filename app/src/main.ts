@@ -2,6 +2,7 @@
    Modules run in the order they're listed here. A module only imports from modules above it, so that
    order holds; code that needs something further down calls it through App (e.g. App.selChanged()). */
 import './core/events';
+import './core/errors';
 import { S, el } from './core/base';
 import './core/helpers';
 import './core/haptics';

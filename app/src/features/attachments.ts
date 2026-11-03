@@ -25,7 +25,7 @@ async function loadTxExtras(gid: string, jids: string[]) {
     if (!el('txExtras')) return;
     const attHtml = atts.length ? html`<div class="list">${htmlList(atts.map(a => {
       const at = a.attributes;
-      return html`<div class="row"><span class="name"><button class="link" data-onclick="App.downloadAtt('${a.id}','${String(at.filename).replace(/'/g, '')}')">${at.title || at.filename}</button> <span class="sub-s">${fmtSize(at.size)}</span></span><button class="link" data-onclick="App.deleteAtt('${a.id}')">Remove</button></div>`;
+      return html`<div class="row"><span class="name"><button class="link" data-onclick="App.downloadAtt('${a.id}','${String(at.filename).replace(/['\\]/g, '')}')">${at.title || at.filename}</button> <span class="sub-s">${fmtSize(at.size)}</span></span><button class="link" data-onclick="App.deleteAtt('${a.id}')">Remove</button></div>`;
     }))}</div>` : html`<p class="empty" style="padding-top:0">No files attached.</p>`;
     const linkHtml = others.length ? html`<div class="list">${htmlList(others.map(({ l, mine, g }) => {
       const t = typeById[String(l.attributes.link_type_id)] || {}, phrase = mine ? t.outward : t.inward;

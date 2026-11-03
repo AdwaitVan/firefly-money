@@ -136,6 +136,19 @@ export function closeDrawer() {
     shut(); vtName(row, 'txav'); parts.forEach(p => { if (p.hero) vtName(p.el, p.vtn); });
   }, () => { vtName(d.querySelector('.dhero .av'), 'txav'); parts.forEach(p => vtName(p.hero, p.vtn)); });
 }
+// The drawer is a modal dialog, so Tab goes round inside it instead of out to the page behind. (Focus that is in a
+// popup above it, like the category picker or the calendar, is left alone.)
+const TABBABLE = 'a[href], button:not([disabled]), input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab' || e.defaultPrevented) return;
+  const d = document.getElementById('drawer'); if (!d || !d.classList.contains('open')) return;
+  const here = document.activeElement, inside = !!here && d.contains(here);
+  if (!inside && here && here !== document.body) return;
+  const items = [...d.querySelectorAll<HTMLElement>(TABBABLE)].filter(n => n.offsetParent !== null || getComputedStyle(n).position === 'fixed');
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (!inside || (e.shiftKey && here === first) || (!e.shiftKey && here === last)) { e.preventDefault(); (e.shiftKey && inside ? last : first).focus(); }
+});
 export function formError(msg: string) {
   const b = el('drawerBody'); if (!b) return toast(msg);
   let e = b.querySelector('.form-err');

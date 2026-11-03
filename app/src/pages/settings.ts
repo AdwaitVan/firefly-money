@@ -1,6 +1,7 @@
 import { html, htmlList, raw } from '../core/html';
 import { AuthError, PAGES, api, getAll, type ApiError } from '../core/api';
 import { withAuth } from '../core/auth';
+import { PROBLEMS, problemReport } from '../core/errors';
 import { App, cycleDay, el, fmtD, fmtDate, isoDate, money, monthRange, nowMonth, num, S, todayIso, weekStart } from '../core/base';
 import { confirmBox, head, opt, toast } from '../core/dom';
 import { LS, budgetAlert, saveBlob } from '../core/helpers';
@@ -100,7 +101,8 @@ VIEWS.settings = async (r, paint) => {
     ${row('Money', '', moneyVersion() || 'Local build')}
     ${row('What’s new', 'The highlights of this version', html`<button class="btn small" type="button" data-onclick="App.whatsNew(true)">Show</button>`)}
     ${row('Firefly III', '', ab.version || '—')}
-    ${row('API', '', ab.api_version || '—')}`,
+    ${row('API', '', ab.api_version || '—')}
+    ${PROBLEMS.length ? row('Unexpected errors', 'Money hit ' + (PROBLEMS.length === 1 ? 'one problem' : PROBLEMS.length + ' problems') + ' since it opened. Copy the details to report it.', html`<button class="btn small" type="button" data-onclick="App.copyProblems()">Copy</button>`) : ''}`,
     'Your Firefly profile, password, two-factor login, API tokens and user administration aren’t available through Firefly’s API, so change those in Firefly III itself.');
 
   // One category at a time: the list of them sits on the left on wide screens, and on phones it's the first screen,
@@ -351,6 +353,7 @@ function applePayHtml(key: string | null, cards: Cards | null, accounts: Account
 }
 // The Clipboard API only works over HTTPS (or localhost), and most installs are plain HTTP on a home network,
 // so fall back to the older copy command, and if that's blocked too, show the key selected for copying by hand.
+const copyProblems = () => copyText(problemReport(moneyVersion()), 'Details copied');
 async function copyText(text: string, done: string) {
   try {
     if (window.isSecureContext && navigator.clipboard) { await navigator.clipboard.writeText(text); return toast(done); }
@@ -409,6 +412,7 @@ const methods = {
   setCycleDay,
   setBudgetAlert,
   copyText,
+  copyProblems,
   selectKey,
   showKey,
   setCardAccount,

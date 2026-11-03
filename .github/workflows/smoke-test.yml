@@ -18,6 +18,12 @@ jobs:
         run: npm test
       - name: Build the scripts
         run: npm run build
+      - name: Bundle size budget (gzipped)
+        run: |
+          js=$(gzip -c app/assets/js/app.js | wc -c); css=$(gzip -c app/assets/money.css | wc -c)
+          echo "app.js $js bytes, money.css $css bytes (gzipped)"
+          test "$js" -le 230000 || { echo "app.js grew past 230000 bytes gzipped: look at what was added"; exit 1; }
+          test "$css" -le 60000 || { echo "money.css grew past 60000 bytes gzipped: look at what was added"; exit 1; }
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"

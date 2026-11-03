@@ -12,7 +12,9 @@ export const PAGES = new Map();     // page key → { frag, scroll, feed, html, 
 // Cached responses older than S.freshAfter are fetched again. After a change (S.dirtyAt), saved responses are only
 // "out of date", not thrown away: the page you're on reloads fresh, other pages show their saved data at once and
 // then quietly update (see revalidate()).
-export function clearCache() { S.dirtyAt = Date.now(); S.listsAt = 0; PAGES.forEach(p => { p.stale = true; }); }
+// Reads still on their way were asked before the change, so nobody else is handed them (INFLIGHT is emptied), and
+// what they bring back is stamped with the time they were asked, which is before dirtyAt: out of date, not fresh.
+export function clearCache() { S.dirtyAt = Date.now(); S.listsAt = 0; INFLIGHT.clear(); PAGES.forEach(p => { p.stale = true; }); }
 
 /* ---------- No copies on the device ----------
    Money is a layer on top of Firefly III and keeps none of its data: responses live only in this tab's memory.
@@ -48,7 +50,8 @@ export async function api(path: string, opt: ApiOpts = {}): Promise<ApiData> {
       if (S.swr && !S.swrOff) { S.staleTok = S.tok; return hit.v; }      // out of date: show it now, update after
     }
     if (INFLIGHT.has(key)) return INFLIGHT.get(key);
-    const pr = apiRaw(u, opt).then(v => { const e = { t: Date.now(), v }; CACHE.set(key, e); return v; }).finally(() => INFLIGHT.delete(key));
+    const asked = Date.now();
+    const pr: Promise<ApiData> = apiRaw(u, opt).then(v => { CACHE.set(key, { t: asked, v }); return v; }).finally(() => { if (INFLIGHT.get(key) === pr) INFLIGHT.delete(key); });
     INFLIGHT.set(key, pr);
     return pr;
   }

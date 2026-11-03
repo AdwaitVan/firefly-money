@@ -14,6 +14,22 @@ permissions:
   packages: write
 
 jobs:
+  # Runs the image as people do (as a non-root user, against a fake Firefly) and checks sign-in, what reaches Firefly,
+  # the security headers, the rate limit and the Apple Pay endpoint: see dev/gateway_test.py
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t money-test --build-arg MONEY_VERSION=ci .
+      - name: Start the image
+        run: >
+          docker run -d --name money-test --network host --user 568:568
+          -e LISTEN_PORT=18080 -e FIREFLY_URL=http://127.0.0.1:9009 -e FIREFLY_TOKEN=tok-test -e DASH_PASSWORD=pw-test money-test
+      - run: python3 dev/gateway_test.py
+      - name: Server log
+        if: failure()
+        run: docker logs money-test
+
   build:
     runs-on: ubuntu-latest
     steps:

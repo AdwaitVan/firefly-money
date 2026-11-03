@@ -1,7 +1,7 @@
 import { html, htmlList } from '../core/html';
 import { getAll } from '../core/api';
 import { App, S, fmtDate, fmtDay, isoDate, money, money0, num, sameName, todayIso, type ApiData } from '../core/base';
-import { head, ICON_X, opt } from '../core/dom';
+import { head, ICON_X, opt, toast } from '../core/dom';
 import { type Group, normGroup } from '../core/feed';
 import { LS, addDays, bizDay, daysBetween, monthsFrom } from '../core/helpers';
 import { isAsset, isCard, isLiab, lists } from '../core/lists';
@@ -286,7 +286,7 @@ function fcToggle(key: string, on: boolean) {
 function fcSet(k: string, v: string) { LS.set(k === 'account' ? 'fcAccount' : 'fcDays', v); location.hash = hashWith({ [k]: v }); }
 function fcWhatIfAdd(f: HTMLFormElement) {
   const amount = Math.abs(num(f.amount.value)), label = f.label.value.trim();
-  if (!amount || !label || !f.date.value) return;
+  if (!amount || !label || !f.date.value) return toast(!label ? 'Give it a name first.' : !amount ? 'Enter an amount first.' : 'Pick a date first.');
   LS.set('fcWhatIf', [...LS.get('fcWhatIf', []), { id: Date.now().toString(36), label, amount: amount * +f.sign.value, date: f.date.value, repeat: f.repeat.value }]);
   route();
 }

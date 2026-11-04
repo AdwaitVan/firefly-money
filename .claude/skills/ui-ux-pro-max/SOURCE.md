@@ -1,0 +1,1 @@
+Vendored from https://github.com/nextlevelbuilder/ui-ux-pro-max-skill (v2.15.0, MIT, see LICENSE), `.claude/skills/ui-ux-pro-max`. Reviewed: scripts are local-only Python (search/validate), no network calls or subprocesses.

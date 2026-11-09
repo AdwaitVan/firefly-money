@@ -355,6 +355,7 @@ export function renderRentalsHtml(data: DashboardOverview): Html {
       </svg>
       Refresh
     </button>
+    <button type="button" class="btn small btn-tv-toggle" data-onclick="App.toggleTvMode()" title="Toggle TV Mode">📺 TV Mode</button>
   `;
 
   return html`

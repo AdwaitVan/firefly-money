@@ -30,16 +30,6 @@ export const THEME_GROUPS: [string, [string, string][]][] = [
 ];
 // border-box origin: otherwise the gradient tiles under the 2px border and a sliver of the opposite colour shows at the edge
 export function themeButtons() {
-  const cur = currentTheme(), sw = new Map(THEMES.map(t => [t[0], t[2]])), full = new Map(THEMES.map(t => [t[0], t[1]]));
-  return html`<div class="tpick" role="radiogroup" aria-label="Theme">${htmlList(THEME_GROUPS.map(([g, items]) => html`<div class="tp-group" role="group" aria-label="${g}"><div class="tp-head" aria-hidden="true">${g}</div><div class="tp-grid">${htmlList(items.map(([k, name]) => html`<button type="button" role="radio" class="tp${k === cur ? ' on' : ''}" aria-checked="${k === cur ? 'true' : 'false'}" tabindex="${k === cur ? '0' : '-1'}" aria-label="${full.get(k) || name}" data-onclick="App.setTheme('${k}')"><span class="tp-sw" style="background:${sw.get(k) || ''};background-origin:border-box"></span><span class="tp-name">${name}</span></button>`))}</div></div>`))}</div>`;
+  const cur = currentTheme();
+  return htmlList(THEMES.map(([k, label, sw]) => html`<button type="button" title="${label}" aria-label="${label} theme" class="${k === cur ? 'on' : ''}" style="background:${sw};background-origin:border-box" data-onclick="App.setTheme('${k}')"></button>`));
 }
-// Arrow keys move through the themes as one radio group (and pick the one you land on); Tab leaves the group
-document.addEventListener('keydown', e => {
-  const t = e.target instanceof Element ? e.target.closest<HTMLElement>('.tpick .tp') : null;
-  if (!t || e.altKey || e.ctrlKey || e.metaKey) return;
-  const all = [...t.closest('.tpick')!.querySelectorAll<HTMLElement>('.tp')], i = all.indexOf(t);
-  const to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i + 1) % all.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i + all.length - 1) % all.length
-    : e.key === 'Home' ? 0 : e.key === 'End' ? all.length - 1 : -1;
-  if (to < 0) return;
-  e.preventDefault(); all[to].focus(); all[to].click();
-});

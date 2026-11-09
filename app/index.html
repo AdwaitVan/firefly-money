@@ -46,7 +46,10 @@
     <div class="spacer"></div>
     <div class="foot">
       <nav class="nav" id="navFoot"></nav>
-      <div class="toggles"><button type="button" data-tg="privacy" data-onclick="App.togglePrivacy()"></button></div>
+      <div class="toggles">
+        <button type="button" data-tg="privacy" data-onclick="App.togglePrivacy()"></button>
+        <button type="button" class="side-tv-btn" data-onclick="App.toggleTvMode()" title="Toggle TV Mode">📺 TV Mode</button>
+      </div>
       <a id="ffLink" href="${FIREFLY_URL}" target="_blank" rel="noopener">Open Firefly III ↗</a>
       <button type="button" data-onclick="App.signOut()">Sign out</button>
     </div>

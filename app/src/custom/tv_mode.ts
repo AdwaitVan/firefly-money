@@ -113,6 +113,32 @@ function injectTvStyles(): void {
   const style = document.createElement('style');
   style.id = 'tv-mode-custom-css';
   style.textContent = `
+    /* Sidebar TV Button */
+    .side-tv-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 0;
+      padding: 6px 12px;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 8px;
+      width: 100%;
+      text-align: left;
+      transition: background var(--t-hover), color var(--t-hover);
+    }
+    .side-tv-btn:hover {
+      background: var(--faint);
+      color: var(--text);
+    }
+    html.side-mini .side-tv-btn {
+      padding: 6px 4px;
+      font-size: 0;
+    }
+
     /* TV Mode 10-foot Kiosk Scaling */
     body.tv-mode {
       font-size: 19px !important;

@@ -285,7 +285,7 @@ export async function refreshAll(opts: { visible?: boolean } = {}) {
       let markup: Html | string | null = null;
       try { await (VIEWS[r.name] || VIEWS[''])(r, h => { markup = h; }); }
       catch (e) { if (e instanceof AuthError) showLogin(e.message); return; }
-      if (tok === S.tok && key === S.pageKey && markup !== null && markup !== S.pageHtml && !busyHere()) await route({ quiet: true });
+      if (tok === S.tok && key === S.pageKey && markup !== null && String(markup) !== String(S.pageHtml) && !busyHere()) await route({ quiet: true });
     } finally {
       endLoad();
       S.refreshing = null;
@@ -355,7 +355,7 @@ async function warmMonths(r: RouteInfo, tok: number, stepped?: string) {
   }
 }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && !el('app').hidden && S.signedIn && Date.now() - (S.lastRefresh || 0) > 3000) refreshAll();
+  if (document.visibilityState === 'visible' && !el('app').hidden && S.signedIn && Date.now() - (S.lastRefresh || 0) > 5 * 60 * 1000) refreshAll();
 });
 // Tapping the tab you're already on scrolls back to the top.
 document.addEventListener('click', e => {

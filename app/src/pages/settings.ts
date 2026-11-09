@@ -97,7 +97,6 @@ VIEWS.settings = async (r, paint) => {
   const aboutHtml = group('about', 'About', html`
     ${row('Custom Edition', 'Vanmali Family Edition (14-Tenant Rent Roll & TV Remote Mode)', 'v2.2.1-custom')}
     ${row('Upstream Base', 'Forked from official Muffy0906/firefly-money', 'v2.2.1 (2cc0936 · Nov 8, 2026)')}
-    ${row('Original Firefly Money', 'Official project repository by Muffy0906 on GitHub', html`<a class="btn small" href="https://github.com/Muffy0906/firefly-money" target="_blank" rel="noopener">GitHub ↗</a>`)}
     ${row('Upstream updates', 'Check and merge upstream Firefly Money updates without altering custom modules', html`<button class="btn small primary" type="button" data-onclick="App.syncUpstream(this)">Check & Update</button>`)}
     ${row('Money core', '', moneyVersion() || 'v2.2.1')}
     ${row('What’s new', 'The highlights of this version', html`<button class="btn small" type="button" data-onclick="App.whatsNew(true)">Show</button>`)}

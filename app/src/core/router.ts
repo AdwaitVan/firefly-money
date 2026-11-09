@@ -13,7 +13,7 @@ import { labelHtml, monthLabel, morph, morphOk, sameLayout, slideLabel, snapshot
 const SKELETONS: Record<string, string> = {
   '': 'dash', reports: 'dash', recap: 'dash', year: 'dash', timeline: 'dash', forecast: 'dash',
   transactions: 'feed', account: 'feed', review: 'feed', unusual: 'cards', inbox: 'feed', places: 'feed', map: 'chart',
-  budgets: 'table', categories: 'table', bills: 'table', accounts: 'table', rules: 'table', recurring: 'table', loans: 'table', piggy: 'cards',
+  budgets: 'table', categories: 'table', bills: 'table', accounts: 'table', rules: 'table', recurring: 'table', loans: 'table', piggy: 'cards', rentals: 'table',
 };
 function skeleton() {
   const bar = (w: string, h: number, extra = '') => html`<div class="sk" style="width:${w};height:${h}px${extra}"></div>`;
@@ -48,7 +48,7 @@ export type View = (r: RouteInfo, paint: Paint) => Promise<unknown> | void;
 export const VIEWS: Record<string, View> = {};
 
 /* ---------- Page cache: tabs you've opened come back exactly as you left them ---------- */
-const CACHEABLE = new Set(['', 'transactions', 'budgets', 'accounts', 'account', 'categories', 'bills', 'piggy', 'forecast', 'reports', 'recurring', 'loans', 'recap', 'timeline']);
+const CACHEABLE = new Set(['', 'transactions', 'budgets', 'accounts', 'account', 'categories', 'bills', 'piggy', 'forecast', 'reports', 'recurring', 'loans', 'recap', 'timeline', 'rentals']);
 function stashPage(feed: State['feed']) {
   const v = el('view');
   unstepLabel(v);

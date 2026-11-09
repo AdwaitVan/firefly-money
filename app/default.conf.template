@@ -165,7 +165,7 @@ server {
         # Only this server may supply scripts, styles, images and API calls, and no other site may frame the page.
         # No inline script either (markup handlers are data-on* attributes, see assets/js/events.js).
         # Styles stay 'unsafe-inline' for the style="" attributes; CSS can't run script.
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://192.168.0.150:8000 http://localhost:8000; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
         add_header X-Frame-Options "DENY";
         add_header Cross-Origin-Opener-Policy "same-origin";
         add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
@@ -211,6 +211,15 @@ server {
         add_header X-Money-Server "1" always;
         add_header Cache-Control "no-store" always;
         return 204;
+    }
+
+    # Gateway Proxy: routes to local Python Gateway for rentals & telemetry
+    location /api/gateway/ {
+        resolver ${NGINX_LOCAL_RESOLVERS} valid=30s;
+        proxy_pass http://192.168.0.150:8000/api/v1/;
+        proxy_set_header Host 192.168.0.150:8000;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 30s;
     }
 
     # Proxy to Firefly III. Requires a session; the Firefly token never leaves the server.

@@ -20,14 +20,16 @@ function same(a, b) {
   for (let i = 0; i < x.length; i++) d |= x.charCodeAt(i) ^ y.charCodeAt(i);
   return d === 0;
 }
-const signingKey = () => mac(env('FIREFLY_TOKEN'), 'money-session\n' + env('DASH_PASSWORD'));
+const getPassword = () => env('MONEY_PASSWORD') || env('DASH_PASSWORD');
+const getToken = () => env('FIREFLY_ACCESS_TOKEN') || env('FIREFLY_TOKEN');
+const signingKey = () => mac(getToken(), 'money-session\n' + getPassword());
 const token = (exp, keep) => exp + '.' + keep + '.' + mac(signingKey(), exp + '.' + keep);
 
 // The session in the request's cookie, or null when there is none, it has expired, or its signature is wrong
 function session(r) {
   const t = r.variables.cookie_money_session || '';
   const m = /^(\d{1,12})\.([01])\.[\w-]{43}$/.exec(t);
-  if (!m || !env('DASH_PASSWORD') || +m[1] <= now() || !same(t, token(m[1], m[2]))) return null;
+  if (!m || !getPassword() || +m[1] <= now() || !same(t, token(m[1], m[2]))) return null;
   return { exp: +m[1], keep: m[2] === '1' };
 }
 
@@ -60,7 +62,7 @@ function endpoint(r) {
   let body = {};
   try { body = JSON.parse(r.requestText || '{}') || {}; } catch (e) { /* not JSON: wrong password below */ }
   const pw = typeof body.password === 'string' ? body.password : '';
-  if (!env('DASH_PASSWORD') || !same(pw, env('DASH_PASSWORD'))) {
+  if (!getPassword() || !same(pw, getPassword())) {
     r.headersOut['X-Dash-Auth'] = 'required';
     return r.return(401);
   }

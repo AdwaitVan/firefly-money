@@ -28,14 +28,15 @@ const ICONS: Record<string, Html> = {
   eye: html`<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`,
   eyeoff: html`<path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.3 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>`,
   density: html`<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>`,
+  rentals: html`<path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/>`,
 };
 export const icon = (k: string) => html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`;
-export const NAV = [['', 'Overview', 'overview'], ['forecast', 'Forecast', 'forecast'], ['transactions', 'Transactions', 'transactions'], ['review', 'To do', 'review'],
+export const NAV = [['', 'Overview', 'overview'], ['rentals', 'Rentals', 'rentals'], ['forecast', 'Forecast', 'forecast'], ['transactions', 'Transactions', 'transactions'], ['review', 'To do', 'review'],
   ['accounts', 'Accounts', 'accounts'], ['loans', 'Loan planner', 'loans'],
   ['budgets', 'Budgets', 'budgets'], ['categories', 'Categories & tags', 'categories'], ['bills', 'Bills', 'bills'], ['recurring', 'Recurring', 'recurring'],
   ['piggy', 'Piggy banks', 'piggy'], ['rules', 'Rules', 'rules'], ['recap', 'Monthly recap', 'recap'], ['year', 'Year in Money', 'year'], ['timeline', 'Timeline', 'timeline'], ['ask', 'Ask', 'spark'], ['unusual', 'Unusual', 'eye'], ['map', 'Map', 'map'], ['reports', 'Reports', 'reports'], ['settings', 'Settings', 'settings']];
 // How the sidebar and the phone's More menu group the pages (Settings sits at the bottom of the sidebar)
-export const NAV_GROUPS: [string, string[]][] = [['', ['', 'transactions', 'review']],
+export const NAV_GROUPS: [string, string[]][] = [['', ['', 'rentals', 'transactions', 'review']],
   ['Plan', ['budgets', 'bills', 'recurring', 'piggy', 'forecast', 'loans']], ['Insights', ['reports', 'timeline', 'recap', 'year', 'unusual', 'ask', 'map']],
   ['Manage', ['accounts', 'categories', 'rules']]];
 export const navItem = (r: string) => NAV.find(n => n[0] === r)!;
@@ -159,7 +160,8 @@ export function monthNav() {
   return html`<div class="month"><button class="round" data-onclick="App.shiftMonth(-1)" aria-label="Previous month">${ICON_PREV}</button><span title="${fmtDate(r.start)} – ${fmtDate(r.end)}"><i class="ml">${r.label}</i><i class="ms">${r.short} ${r.y}</i>${r.start.endsWith('-01') ? '' : html`<small class="cycle">${fmtDay(r.start)} – ${fmtDay(r.end)}</small>`}</span><button class="round" data-onclick="App.shiftMonth(1)" aria-label="Next month"${isNow ? ' disabled' : ''}>${ICON_NEXT}</button>${ahead !== 0 ? html`<button class="btn small" style="margin-left:6px" data-onclick="App.thisMonth()">Today</button>` : html`<button class="btn small today-gap" style="margin-left:6px" aria-hidden="true" tabindex="-1" disabled>Today</button>`}<button class="btn small" style="margin-left:6px" data-onclick="App.allTime()">All time</button></div>`;
 }
 export function head(title: string | Html, sub: string | Html, actions?: string | Html) {
-  return html`<div class="head"><div><h1>${title}</h1>${sub ? html`<p class="sub">${sub}</p>` : ''}</div><div class="actions">${actions || ''}</div></div>`;
+  const tvBtn = html`<button type="button" class="btn small btn-tv-toggle" data-onclick="App.toggleTvMode()" title="Toggle TV Mode">📺 TV Mode</button>`;
+  return html`<div class="head"><div><h1>${title}</h1>${sub ? html`<p class="sub">${sub}</p>` : ''}</div><div class="actions">${actions || ''}${tvBtn}</div></div>`;
 }
 /* ---------- Empty states: a drawn icon, what the page is for, and the one thing to do next ---------- */
 const EMPTY_ICONS: Record<string, string> = {

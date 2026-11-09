@@ -20,7 +20,9 @@ function same(a, b) {
   for (let i = 0; i < x.length; i++) d |= x.charCodeAt(i) ^ y.charCodeAt(i);
   return d === 0;
 }
-const key = () => mac(env('FIREFLY_TOKEN'), 'money-ingest\n' + env('DASH_PASSWORD'));
+const getPassword = () => env('MONEY_PASSWORD') || env('DASH_PASSWORD');
+const getToken = () => env('FIREFLY_ACCESS_TOKEN') || env('FIREFLY_TOKEN');
+const key = () => mac(getToken(), 'money-ingest\n' + getPassword());
 
 // "$1,234.56", "1.234,56 €", "-4.50", 12.3 → "1234.56", "1234.56", "-4.50", "12.30"; null when there's no number
 function parseAmount(v) {
@@ -164,7 +166,7 @@ async function endpoint(r) {
   }
   if (r.method !== 'POST') return say(r, 405, 'Use POST.');
   const auth = /^Bearer\s+(\S+)$/i.exec(r.headersIn['Authorization'] || '');
-  if (!env('DASH_PASSWORD') || !auth || !same(auth[1], key())) return say(r, 401, 'Wrong key: copy it again from Money → Settings → Apple Pay.');
+  if (!getPassword() || !auth || !same(auth[1], key())) return say(r, 401, 'Wrong key: copy it again from Money → Settings → Apple Pay.');
 
   let b = {};
   try { b = JSON.parse(r.requestText || '{}') || {}; } catch (e) { return say(r, 400, 'Send JSON: {"amount", "merchant", "card"}.'); }

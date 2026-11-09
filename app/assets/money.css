@@ -653,7 +653,7 @@
   .calpop .cf { display: flex; justify-content: space-between; margin-top: 8px; }
   /* ---------- Phone tab bar ---------- */
   .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 16; background: var(--panel); border-top: 1px solid var(--line);
-    display: none; grid-template-columns: repeat(5, 1fr); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+    display: none; grid-template-columns: repeat(6, 1fr); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
   .tabbar a, .tabbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--muted); text-decoration: none; background: none; border: 0; padding: 6px 0; cursor: pointer; }
   .tabbar a.on { color: var(--accent); }
   .tabbar svg { width: 22px; height: 22px; }

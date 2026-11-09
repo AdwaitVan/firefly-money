@@ -20,13 +20,12 @@ el('loginForm').onsubmit = async ev => {
 };
 export { THEMES, themeButtons };
 function currentTheme() { return document.documentElement.getAttribute('data-theme') || 'auto'; }
-// The theme picker on the Settings page
+// The theme picker on the Settings page (the focus goes back to the chosen theme after it's redrawn)
 function drawThemes() {
-  document.querySelectorAll('.themes').forEach(t => {
-    t.innerHTML = String(themeButtons());
-  });
   document.querySelectorAll('.tpick').forEach(t => {
+    const had = t.contains(document.activeElement);
     t.outerHTML = String(themeButtons());
+    if (had) document.querySelector<HTMLElement>('.tpick .tp.on')?.focus();
   });
 }
 export function setTheme(k: string) {

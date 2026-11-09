@@ -355,7 +355,7 @@ async function warmMonths(r: RouteInfo, tok: number, stepped?: string) {
   }
 }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && !el('app').hidden && S.signedIn && Date.now() - (S.lastRefresh || 0) > 5 * 60 * 1000) refreshAll();
+  if (document.visibilityState === 'visible' && !el('app').hidden && S.signedIn && Date.now() - (S.lastRefresh || 0) > 3000) refreshAll();
 });
 // Tapping the tab you're already on scrolls back to the top.
 document.addEventListener('click', e => {

@@ -77,6 +77,7 @@ import './features/shell';
 import './features/whatsnew';
 import './custom/tv_mode';
 import './custom/rentals';
+import './custom/live_sync';
 
 // For the smoke test (dev/smoke_test.py) and the browser console
 Object.assign(window, { S, el, parseHash, refreshAll });

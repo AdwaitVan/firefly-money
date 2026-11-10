@@ -87,6 +87,28 @@ export function fmtINR(val: number | undefined | null): string {
   }).format(val);
 }
 
+export function formatDueDate(dateStr: string | undefined | null): string {
+  if (!dateStr) return '—';
+  try {
+    const parts = String(dateStr).slice(0, 10).split('-');
+    if (parts.length === 3) {
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      const dt = new Date(y, m, d);
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayName = weekdays[dt.getDay()];
+      const dd = String(d).padStart(2, '0');
+      const mm = String(m + 1).padStart(2, '0');
+      const yy = String(y).slice(-2);
+      return `${dd}-${mm}-${yy} (${dayName})`;
+    }
+    return dateStr;
+  } catch {
+    return dateStr || '—';
+  }
+}
+
 export async function fetchGatewayOverview(): Promise<DashboardOverview> {
   const endpoints = [
     'http://192.168.0.150:8000/api/v1/dashboard/overview',
@@ -286,20 +308,50 @@ function renderRentRollTable(items: RentRollItem[] | undefined, asOf: string | u
     `;
   }
 
-  const rows = items.map(
-    item => html`
+  const desktopRows = items.map(
+    (item, idx) => html`
       <tr>
+        <td class="c" style="width: 48px; color: var(--muted); font-weight: 600;">#${idx + 1}</td>
         <td>
           <strong style="font-size: 14px;">${item.tenant_name}</strong>
         </td>
-        <td>${item.property_name}</td>
-        <td><span class="unit-badge">${item.unit_code}</span></td>
         <td class="r num">${fmtINR(item.amount_due)}</td>
         <td class="r num ${item.amount_collected > 0 ? 'pos' : ''}">${fmtINR(item.amount_collected)}</td>
         <td class="r num ${item.outstanding_balance > 0 ? 'neg' : ''}">${fmtINR(item.outstanding_balance)}</td>
-        <td>${item.due_date}</td>
+        <td>${formatDueDate(item.due_date)}</td>
         <td class="c">${renderStatusPill(item)}</td>
       </tr>
+    `,
+  );
+
+  const mobileCards = items.map(
+    (item, idx) => html`
+      <div class="rent-card">
+        <div class="rc-head">
+          <div class="rc-tenant">
+            <span class="rc-num">#${idx + 1}</span>
+            <strong>${item.tenant_name}</strong>
+          </div>
+          <div class="rc-pill">${renderStatusPill(item)}</div>
+        </div>
+        <div class="rc-date">
+          <span class="rc-label">Due Date:</span> <span>${formatDueDate(item.due_date)}</span>
+        </div>
+        <div class="rc-stats">
+          <div>
+            <span class="rc-label">Agreed</span>
+            <strong>${fmtINR(item.amount_due)}</strong>
+          </div>
+          <div>
+            <span class="rc-label">Collected</span>
+            <strong class="${item.amount_collected > 0 ? 'pos' : ''}">${fmtINR(item.amount_collected)}</strong>
+          </div>
+          <div>
+            <span class="rc-label">Arrears</span>
+            <strong class="${item.outstanding_balance > 0 ? 'neg' : ''}">${fmtINR(item.outstanding_balance)}</strong>
+          </div>
+        </div>
+      </div>
     `,
   );
 
@@ -314,13 +366,12 @@ function renderRentRollTable(items: RentRollItem[] | undefined, asOf: string | u
           ${asOf ? 'Updated: ' + asOf : ''}
         </div>
       </div>
-      <div style="overflow-x: auto;">
+      <div class="rent-roll-desktop">
         <table class="tbl">
           <thead>
             <tr>
+              <th style="width: 48px;" class="c">#</th>
               <th>Tenant Name</th>
-              <th>Property</th>
-              <th>Unit</th>
               <th class="r">Agreed Rent</th>
               <th class="r">Collected</th>
               <th class="r">Arrears / Outstanding</th>
@@ -329,9 +380,12 @@ function renderRentRollTable(items: RentRollItem[] | undefined, asOf: string | u
             </tr>
           </thead>
           <tbody>
-            ${htmlList(rows)}
+            ${htmlList(desktopRows)}
           </tbody>
         </table>
+      </div>
+      <div class="rent-roll-mobile">
+        ${htmlList(mobileCards)}
       </div>
     </section>
   `;

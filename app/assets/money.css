@@ -2492,3 +2492,86 @@ html[data-theme="dark"] { --e1: var(--rim), var(--lift); --e2: 0 1px 0 rgba(0,0,
 .lines { touch-action: pan-y; }
 .lines .scrub-line { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 4; pointer-events: none; }
 
+/* ---------- Responsive Rent Roll (Desktop Table / Mobile Stacked Cards) ---------- */
+.rent-roll-mobile { display: none; }
+.rent-roll-desktop { display: block; overflow-x: auto; }
+
+@media (max-width: 768px) {
+  .rent-roll-desktop { display: none; }
+  .rent-roll-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 14px 20px;
+  }
+  .rent-card {
+    background: var(--panel, #fff);
+    border: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+    border-radius: var(--radius, 14px);
+    padding: 13px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+  .rc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .rc-tenant {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+  }
+  .rc-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--faint, rgba(0, 0, 0, 0.05));
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted, #64748b);
+    flex-shrink: 0;
+  }
+  .rc-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted, #64748b);
+  }
+  .rc-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--faint, rgba(0, 0, 0, 0.02));
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 4px;
+    font-size: 12.5px;
+  }
+  .rc-stats > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rc-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted, #64748b);
+    font-weight: 600;
+  }
+  .rc-stats strong {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+

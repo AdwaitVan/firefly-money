@@ -1,5 +1,5 @@
 import { type Html, html, htmlList } from '../core/html';
-import { VIEWS, type Paint, type RouteInfo, refreshAll } from '../core/router';
+import { VIEWS, type Paint, type RouteInfo, refreshAll, route } from '../core/router';
 import { head } from '../core/dom';
 import { App } from '../core/base';
 
@@ -370,29 +370,38 @@ export function renderRentalsHtml(data: DashboardOverview): Html {
 
 export const renderRentalsView = async (_r: RouteInfo, paint: Paint) => {
   activePainter = paint;
+  const currentScroll = window.scrollY || document.documentElement.scrollTop;
 
-  // Render responsive skeleton placeholder while data loads
-  paint(html`
-    ${head('🏢 Rentals', 'Family Real Estate Portfolio & 14-Tenant Rent Roll')}
-    <div class="kpis sk-kpis">
-      <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
-      <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
-      <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
-      <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
-    </div>
-    <section class="panel flush sk-list">
-      <div style="padding:20px 24px;">
-        <div class="sk" style="width:40%;height:16px;"></div>
-        <div style="height:12px;"></div>
-        <div class="sk" style="width:100%;height:200px;border-radius:10px;"></div>
+  // Only render skeleton placeholder on initial cold load when there is NO existing content rendered
+  const hasExistingContent = !!latestData || !!document.querySelector('#view .tbl');
+  if (!hasExistingContent) {
+    paint(html`
+      ${head('🏢 Rentals', 'Family Real Estate Portfolio & 14-Tenant Rent Roll')}
+      <div class="kpis sk-kpis">
+        <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
+        <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
+        <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
+        <div class="kpi"><div class="sk" style="width:50%;height:12px;"></div><div style="height:12px;"></div><div class="sk" style="width:80%;height:28px;"></div></div>
       </div>
-    </section>
-  `);
+      <section class="panel flush sk-list">
+        <div style="padding:20px 24px;">
+          <div class="sk" style="width:40%;height:16px;"></div>
+          <div style="height:12px;"></div>
+          <div class="sk" style="width:100%;height:200px;border-radius:10px;"></div>
+        </div>
+      </section>
+    `);
+  }
 
   try {
     const data = await fetchGatewayOverview();
     latestData = data;
     paint(renderRentalsHtml(data));
+    if (currentScroll > 0) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: currentScroll, behavior: 'instant' });
+      });
+    }
   } catch (err: any) {
     paint(html`
       ${head('🏢 Rentals', 'Family Real Estate Portfolio & 14-Tenant Rent Roll')}
@@ -418,15 +427,42 @@ if (typeof window !== 'undefined') {
     if (detail) {
       latestData = detail;
       if (activePainter && activePainter.live) {
+        const scrollPos = window.scrollY || document.documentElement.scrollTop;
         activePainter(renderRentalsHtml(detail));
+        if (scrollPos > 0) {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: scrollPos, behavior: 'instant' });
+          });
+        }
       }
     }
   });
 }
 
-// Bind refresh method to App
-function refreshRentals(): void {
-  refreshAll();
+// Bind refresh method to App with scroll position preservation
+async function refreshRentals(): Promise<void> {
+  const scrollPos = window.scrollY || document.documentElement.scrollTop;
+  try {
+    const data = await fetchGatewayOverview();
+    latestData = data;
+    if (activePainter && activePainter.live) {
+      activePainter(renderRentalsHtml(data));
+      if (scrollPos > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollPos, behavior: 'instant' });
+        });
+      }
+    } else {
+      await route({ quiet: true });
+      if (scrollPos > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollPos, behavior: 'instant' });
+        });
+      }
+    }
+  } catch {
+    await route({ quiet: true });
+  }
 }
 
 const methods = {
